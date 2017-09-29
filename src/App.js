@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {
+    Message1,
+    Message2
+} from "./Message";
 
 class App extends Component {
   render() {
@@ -13,6 +17,12 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
+        <Message1 
+            message="world"
+        />
+        <Message1 
+            message="cruel world"
+        />
       </div>
     );
   }

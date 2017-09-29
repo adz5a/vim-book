@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "module": "es6",
+        "noImplicitAny": true,
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "target": "es6",
+        "outDir": "lib",
+        "moduleResolution": "node",
+        "pretty": true,
+        "strict": true,
+        "jsx": "React",
+        "baseUrl": "src",
+        "paths": {
+            "views": [ "view/*" ],
+            "data": [ "data/*" ],
+            "components": [ "components/*" ]
+        }
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "include": [
+        "./src/**/*"
+    ],
+    "awesomeTypescriptLoaderOptions": {
+        "useBabel": true
+    }
+}

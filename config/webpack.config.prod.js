@@ -88,7 +88,7 @@ module.exports = {
     // https://github.com/facebookincubator/create-react-app/issues/290
     // `web` extension prefixes have been added for better support
     // for React Native Web.
-    extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
+    extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx', ".ts", ".tsx"],
     alias: {
       
       // Support React Native Web
@@ -125,6 +125,16 @@ module.exports = {
             },
             loader: require.resolve('eslint-loader'),
           },
+        ],
+        include: paths.appSrc,
+      },
+        // typescript loader
+      {
+        test: /\.(ts|tsx)$/,
+        use: [
+          {
+            loader: require.resolve('awesome-typescript-loader'),
+          }
         ],
         include: paths.appSrc,
       },
@@ -217,7 +227,7 @@ module.exports = {
             // it's runtime that would otherwise processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
             // by webpacks internal loaders.
-            exclude: [/\.js$/, /\.html$/, /\.json$/],
+              exclude: [/\.js$/, /\.html$/, /\.json$/, /\.tsx?/],
             options: {
               name: 'static/media/[name].[hash:8].[ext]',
             },
