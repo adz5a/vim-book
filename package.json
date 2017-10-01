@@ -53,12 +53,14 @@
         "test": "node scripts/test.js --env=jsdom"
     },
     "jest": {
+        "testPathIgnorePatterns": [
+            "<rootDir>/node_modules/",
+            "<rootDir>/lib/"
+        ],
         "collectCoverageFrom": [
             "src/**/*.{js,jsx}"
         ],
-        "setupFiles": [
-            "<rootDir>/config/polyfills.js"
-        ],
+        "setupFiles": [],
         "testMatch": [
             "<rootDir>/src/**/__tests__/**/*.js?(x)",
             "<rootDir>/src/**/?(*.)(spec|test).js?(x)"
@@ -66,9 +68,8 @@
         "testEnvironment": "node",
         "testURL": "http://localhost",
         "transform": {
-            "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
-            "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
-            "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+            "^.+\\.(ts|tsx)$": "<rootDir>/scripts/processFiles",
+            "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest"
         },
         "transformIgnorePatterns": [
             "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
@@ -82,6 +83,8 @@
             "json",
             "web.jsx",
             "jsx",
+            "ts",
+            "tsx",
             "node"
         ]
     },
