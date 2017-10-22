@@ -8,12 +8,27 @@ const author= "sjl";
 const repo= "learnvimscriptthehardway";
 const PouchDB = global.PouchDB;
 const db = new PouchDB("book");
+global.bookDB = db;
 
 const fetchTOC = () => xs.fromPromise(getContents({
     author,
     repo,
     path: "chapters"
 }));
+
+const updateCachedChapter = chapter => db.get(chapter.path)
+    .then(doc => db.put({
+        _id: chapter.path,
+        _rev: doc._rev,
+        chapter
+    }), error => {
+        if ( error.status === 404 ) {
+            return db.put({
+                _id: chapter.path,
+                chapter
+            });
+        } else throw error;
+    });
 
 export const middleware = createMiddleware( action$ => {
 
@@ -53,7 +68,7 @@ export const middleware = createMiddleware( action$ => {
         }))
         .flatten();
 
-    const loadChapters$ = action$.filter(withType(ACTIONS.tocLoaded))
+    const fetchAllChapter$ = action$.filter(withType(ACTIONS.missingChaptersContent))
         .map(({ type, data: chapters }) => {
             /*
               Array<Stream<Chapter>>
@@ -72,11 +87,70 @@ export const middleware = createMiddleware( action$ => {
         .flatten()
         .map(asType(ACTIONS.chapterContentLoaded));
 
+    // hwen tocs are loaded
+    // look up in the db db for correspdongi chatpers
+    const loadAllChapterFormCache$ = action$
+        .filter(withType(ACTIONS.tocLoaded))
+        .map(({ data: chapters }) => {
+
+            return xs
+                .fromPromise(db.bulkGet({
+                    docs: chapters.map(chapter => ({ id: chapter.path }))
+                }))
+                .map(response => {
+                    console.log(response);
+                    const {
+                        missing,
+                        found
+                    } = response.results.reduce((results, item) => {
+                        if ( item.docs.length > 0 ) {
+                            results.found.push(item.docs[0].ok.chapter);
+                        } else {
+                            results.missing.push({
+                                path: item.id
+                            });
+                        }
+                        return results;
+                    }, {
+                        missing: [],
+                        found: []
+                    });
+
+                    return xs.of(
+                        { 
+                            type: ACTIONS.loadedCachedChaptersContent,
+                            data: found
+                        },
+                        {
+                            type: ACTIONS.missingChaptersContent,
+                            data: missing
+                        }
+                    );
+                })
+                .flatten();
+
+        })
+        .flatten();
+
+    // each time a chapter is loaded, save it in the local db
+    const saveChapterContent$ = action$
+        .filter(withType(ACTIONS.chapterContentLoaded))
+        .map(({ data: chapter }) => xs
+            .fromPromise(updateCachedChapter(chapter))
+            .map(() => ({
+                type: ACTIONS.chapterContentSaved,
+                data: chapter
+            })))
+        .flatten();
+
+
     return xs.merge(
         loadTOC$,
         fetchMissingTOC$,
         saveFetchedTOC$,
-        loadChapters$,
+        loadAllChapterFormCache$,
+        fetchAllChapter$,
+        saveChapterContent$,
         xs.of({ type: ACTIONS.loadTOC })
     )
         .replaceError(e => {

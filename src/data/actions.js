@@ -1,7 +1,9 @@
 export const ACTIONS = {
-    loaded: "chapters-loaded",
-    load: "load-chapters",
     chapterContentLoaded: "chapter-content-loaded",
+    loadedCachedChaptersContent: "loaded-cached-chapter-contents",
+    chapterContentSaved: "chapter-content-saved",
+    chapterContentMissing: "chapter-content-missing",
+    missingChaptersContent: "missing-chapters-content",
     tocLoaded: "toc-loaded",
     loadTOC: "load-toc",
     tocCacheError: "toc-cache-error",
