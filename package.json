@@ -37,6 +37,8 @@
         "react": "^16.0.0",
         "react-dev-utils": "^4.1.0",
         "react-dom": "^16.0.0",
+        "react-redux": "^5.0.6",
+        "redux": "^3.7.2",
         "style-loader": "0.18.2",
         "sw-precache-webpack-plugin": "0.11.4",
         "tachyons": "^4.8.1",
@@ -45,7 +47,9 @@
         "webpack": "3.5.1",
         "webpack-dev-server": "2.8.2",
         "webpack-manifest-plugin": "1.2.1",
-        "whatwg-fetch": "2.0.3"
+        "whatwg-fetch": "2.0.3",
+        "xstream": "^11.0.0",
+        "xstream-redux-observable": "https://github.com/adz5a/xstream-redux-observable.git"
     },
     "scripts": {
         "tsc-w": "tsc --watch",
