@@ -45,15 +45,11 @@ class AppView extends Component {
 
     }
     render() {
-        console.log(this.props);
         return (
             <div className="App helvetica">
                 <header className="App-header">
                     <img src={logo} className="App-logo" alt="logo" />
                 </header>
-                <TableOfContentsView 
-                    chapters={this.props.chapters}
-                />
             </div>
         );
     }
