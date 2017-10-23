@@ -5,18 +5,25 @@ export * from "./actions";
 
 
 
+const indexBy = key => ( state = {}, data ) =>  {
+
+  return data.reduce(( state, item ) => {
+    const index = item[key];
+    state[index] = item;
+    return state;
+  }, { ...state });
+
+};
 
 
 const toc = makeReducer({
-    [ACTIONS.loaded]: (toc, chapters) => chapters
+    [ACTIONS.tocLoaded]: (toc, chapters) => chapters
 },[]);
 
 const chapters = makeReducer({
-    [ACTIONS.chapterContentLoaded]: (chapters, chapter) => ({
-        ...chapters,
-        [chapter.path]: chapter
-    })
-},[]);
+  [ACTIONS.chapterContentLoaded]: indexBy("path"),
+  [ACTIONS.loadedCachedChaptersContent]: indexBy("path")
+}, {});
 
 const book = combineReducers({
     toc,
@@ -31,7 +38,7 @@ const book = combineReducers({
 
 export const store = createStore(
     combineReducers({
-        book
+      book,
     }),
     applyMiddleware(middleware)
 );

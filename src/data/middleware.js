@@ -3,10 +3,10 @@ import { getContents$ } from "./api";
 import { ACTIONS, withType, asType, makeReducer } from "./actions";
 import xs from "xstream";
 import delay from "xstream/extra/delay";
+import PouchDB from "pouchdb-browser";
 
 const author= "sjl";
 const repo= "learnvimscriptthehardway";
-const PouchDB = global.PouchDB;
 const db = new PouchDB("book");
 global.bookDB = db;
 
@@ -30,7 +30,9 @@ const updateCachedChapter = chapter => db.get(chapter.path)
     } else throw error;
   });
 
-export const middleware = createMiddleware( action$ => {
+export const middleware = createMiddleware( raw$ => {
+
+  const action$ = raw$.debug("actions");
 
   const loadTOC$ = action$.filter(withType(ACTIONS.loadTOC))
     .map(() => xs.fromPromise(db.get("toc")
