@@ -1,5 +1,5 @@
 import { createMiddleware } from "xstream-redux-observable";
-import { getContents$ } from "./api";
+import { getContents } from "./api";
 import { ACTIONS, withType, asType, makeReducer } from "./actions";
 import xs from "xstream";
 import delay from "xstream/extra/delay";
@@ -10,7 +10,7 @@ const author= "sjl";
 const repo= "learnvimscriptthehardway";
 const db = new PouchDB("book");
 
-async function loadChapters ( toc ) {
+export function loadChapters ( toc ) {
 
   /*
    * fires a request every second
@@ -89,7 +89,8 @@ export async function loadToc ( db ) {
 
     } catch (e) {
       return xs.of({
-        type: ACTIONS.tocUnavailable
+        type: ACTIONS.tocUnavailable,
+        data: e
       }); 
     }
 

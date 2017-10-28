@@ -282,7 +282,6 @@ describe("tocs", () => {
       path: "chapters"
     });
     console.log("response");
-    console.log(toc);
     const res$ = loadChapters(toc.slice(0, 3));
     const final = await toArray(res$);
 
