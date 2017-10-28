@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tocs load toc - with empty db toc 1`] = `
+Array [
+  "toc-loaded",
+  "toc-saved",
+]
+`;
+
+exports[`tocs load toc - with non-empty db toc 1`] = `
+Array [
+  "toc-loaded",
+]
+`;

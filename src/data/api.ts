@@ -60,6 +60,13 @@ export const getContents = ( options: Options ): Promise<ApiResponse | ApiPartia
   return fetch(makeURL(options))
     .then( response => {
       return response.json()
+        .then( data => {
+          if ( response.status !== 200 ) {
+            throw data;
+          } else {
+            return data;
+          }
+        });
     }) as Promise<ApiResponse>;
 };
 

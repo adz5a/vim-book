@@ -1,9 +1,11 @@
-import { createMiddleware } from "xstream-redux-observable";
+import { createMiddleware, toArray } from "xstream-redux-observable";
 import { ACTIONS, withType, asType, makeReducer } from "./actions";
 import xs from "xstream";
+import flattenConcurrently from "xstream/extra/flattenConcurrently";
 import delay from "xstream/extra/delay";
 import PouchDB from "pouchdb-browser";
 import { getContents } from "./api";
+import { saveToc, loadToc, loadChapters } from "./middleware";
 
 
 describe("pouchdb", () => {
@@ -224,16 +226,70 @@ describe("tocs", () => {
 
   const author= "sjl";
   const repo= "learnvimscriptthehardway";
-  test("fetch toc", async function () {
+
+
+  test("load toc - with empty db toc", async function () {
     expect.hasAssertions(); 
 
-    const response = await getContents({
+    const db = new PouchDB("toc-test");
+    const res$ = await loadToc(db);
+
+    const actions = await toArray(res$);
+    // console.log(actions);
+
+    const types = actions.map( a => a.type );
+    expect(types).toMatchSnapshot();
+
+    const toc = await db.get("toc");
+
+    return await db.destroy();
+  });
+
+  test("load toc - with non-empty db toc", async function () {
+    expect.hasAssertions(); 
+
+    const db = new PouchDB("toc-test");
+    await db.put({
+      _id: "toc",
+      toc: {
+        foo: "bar"
+      }
+    });
+    
+    const res$ = await loadToc(db);
+    const actions = await toArray(res$);
+    // console.log(actions);
+
+    const types = actions.map( a => a.type );
+    expect(types).toMatchSnapshot();
+    const [ action ] = actions;
+
+    expect(action.data).toEqual({
+      foo: "bar"
+    });
+
+    return await db.destroy();
+  });
+
+
+  test("load chapter", async function () {
+    expect.hasAssertions();
+    const db = new PouchDB("load-chapter-test");
+
+    const toc = await getContents({
       author,
       repo,
       path: "chapters"
     });
+    console.log("response");
+    console.log(toc);
+    const res$ = loadChapters(toc.slice(0, 3));
+    const final = await toArray(res$);
 
-    // console.log(response);
+    const types = final.map( a => a.type )
+      .forEach(t => expect(t).toBe(ACTIONS.chapterLoaded));
+
+    return await db.destroy();
+
   });
-
 });

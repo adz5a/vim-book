@@ -7,8 +7,8 @@ export * from "./actions";
 
 const indexBy = key => ( state = {}, data ) =>  {
 
+  const index = item[key];
   return data.reduce(( state, item ) => {
-    const index = item[key];
     state[index] = item;
     return state;
   }, { ...state });
@@ -21,8 +21,7 @@ const toc = makeReducer({
 },[]);
 
 const chapters = makeReducer({
-  [ACTIONS.chapterContentLoaded]: indexBy("name"),
-  [ACTIONS.loadedCachedChaptersContent]: indexBy("name")
+  [ACTIONS.chapterLoaded]: indexBy("name"),
 }, {});
 
 const book = combineReducers({

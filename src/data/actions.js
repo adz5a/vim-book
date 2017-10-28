@@ -1,15 +1,10 @@
 export const ACTIONS = {
-    chapterContentLoaded: "chapter-content-loaded",
-    loadedCachedChaptersContent: "loaded-cached-chapter-contents",
-    chapterContentSaved: "chapter-content-saved",
-    chapterContentMissing: "chapter-content-missing",
-    missingChaptersContent: "missing-chapters-content",
-    tocLoaded: "toc-loaded",
-    loadTOC: "load-toc",
-    tocCacheError: "toc-cache-error",
-    fetchTOC: "fetch-toc",
-    fetchedTOC: "fetched-toc",
-    savedTOC: "saved-toc"
+  tocLoaded: "toc-loaded",
+  tocSaved: "toc-saved",
+  errorTocSave: "error-toc-save",
+  tocUnavailable: "toc-unavailable",
+  chapterLoaded: "chapter-loaded",
+  chapterUnavailable: "chapter-unavailable"
 };
 
 

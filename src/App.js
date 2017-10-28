@@ -68,7 +68,7 @@ class AppView extends Component {
                 const { name } = match.params;
                 const { chapters, toc } = this.props;
                 const index = findIndex(toc, c => c.name === name);
-                  const chapter = chapters[name];
+                const chapter = chapters[name];
 
                 if ( index > -1 && chapter ) {
 
