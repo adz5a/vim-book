@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import { Link, Route, Redirect } from "react-router-dom";
 import { ACTIONS } from "data/store";
 import Markdown from "react-markdown";
+import findIndex from "lodash/findIndex";
 
 
 const TocView = ( { toc } ) => {
@@ -39,16 +40,10 @@ const Toc = connect(
 )(TocView);
 
 
-const ChapterView = ( { chapter } ) => {
-
+const Next = ( { href } ) => {
   return (
-    <section className="pl2 pr2">
-      <h1>{chapter.name}</h1>
-      <Markdown source={atob(chapter.content)} />
-    </section>
-  );
-
-
+    <Link to={href}>Next</Link>
+  )
 };
 
 class AppView extends Component {
@@ -70,12 +65,25 @@ class AppView extends Component {
             {({ match, location }) => {
 
               if ( match ) {
-                const name = match.params.name
-                if ( this.props.chapters[name] ) {
+                const { name } = match.params;
+                const { chapters, toc } = this.props;
+                const index = findIndex(toc, c => c.name === name);
+                  const chapter = chapters[name];
 
-                  return <ChapterView
-                    chapter={this.props.chapters[match.params.name]}
-                  />;
+                if ( index > -1 && chapter ) {
+
+                  const nextHref = index + 1 >= toc.length ?
+                    "/" :
+                    toc[index + 1].path;
+
+                  return (
+                    <section className="pl3 pr3">
+                      <h1>{chapter.name}</h1>
+                      <Next href={"/" + nextHref}/>
+                      <Markdown source={atob(chapter.content)} />
+                      <Next href={"/" + nextHref}/>
+                    </section>
+                  );
 
                 } else {
                   return (
