@@ -35,7 +35,7 @@
         "postcss-loader": "2.0.6",
         "pouchdb": "^6.3.4",
         "pouchdb-browser": "^6.3.4",
-        "pouchdb-node": "^6.3.4",
+        "pouchdb-memory": "^6.0.0",
         "promise": "8.0.1",
         "react": "^16.0.0",
         "react-dev-utils": "^4.1.0",
@@ -53,7 +53,7 @@
         "webpack-manifest-plugin": "1.2.1",
         "whatwg-fetch": "2.0.3",
         "xstream": "^11.0.0",
-        "xstream-redux-observable": "https://github.com/adz5a/xstream-redux-observable.git"
+        "xstream-redux-observable": "git+ssh://git@github.com:adz5a/xstream-redux-observable.git#v0.0.6"
     },
     "scripts": {
         "tsc-w": "tsc --watch",
