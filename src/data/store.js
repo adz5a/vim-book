@@ -21,8 +21,8 @@ const toc = makeReducer({
 },[]);
 
 const chapters = makeReducer({
-  [ACTIONS.chapterContentLoaded]: indexBy("path"),
-  [ACTIONS.loadedCachedChaptersContent]: indexBy("path")
+  [ACTIONS.chapterContentLoaded]: indexBy("name"),
+  [ACTIONS.loadedCachedChaptersContent]: indexBy("name")
 }, {});
 
 const book = combineReducers({

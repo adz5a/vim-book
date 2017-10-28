@@ -103,7 +103,6 @@ export const middleware = createMiddleware( raw$ => {
           docs: chapters.map(chapter => ({ id: chapter.path }))
         }))
         .map(response => {
-          console.log(response);
 
           const {
             missing,

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
-import './App.css';
 import {
     Message1,
     Message2
@@ -8,102 +7,93 @@ import {
 import { connect } from "react-redux";
 import { Link, Route, Redirect } from "react-router-dom";
 import { ACTIONS } from "data/store";
+import Markdown from "react-markdown";
 
-const TableOfContentsItemView = ({ path, content, name, type }) => {
-    const link = content ?
-        <a>Read</a>:
-        <p>Not Loaded</p>
 
-    return (
-        <li>
-            <p>
-                <h3>{name}</h3>
-                {link}
-            </p>
-        </li>
-    );
-};
-const TableOfContentsView = ({ chapters = [] }) => {
+const TocView = ( { toc } ) => {
+  const chapters = toc
+    .filter(chapter => chapter.type === "file")
+    .map(chapter => (
+      <li
+        key={chapter.path}
+      >
+        <Link 
+          to={"/" + chapter.path}
+        >
+          {chapter.name}
+        </Link>
+    </li>
+    ));
 
-    const toc = chapters
-        .filter(chapter => chapter.type === "file")
-        .map(chapter => (
-            <TableOfContentsItemView 
-                {...chapter}
-                key={chapter.path}
-            />
-        ));
-
-    return (
-        <ul>
-            {toc} 
-        </ul>
-    );
-
+  return (
+    <ol className="list">
+      {chapters} 
+    </ol>
+  );
 };
 
-const TOC = ( { chapters, toc } ) => {
+const Toc = connect(
+  state => ({
+    toc: state.book.toc
+  })
+)(TocView);
 
 
-      const $chapters = toc.map( chapter => {
+const ChapterView = ( { chapter } ) => {
 
-        const idx = chapter.path;
-        const data = chapters[idx];
-        const link = data ? <Link to={data.path}>{data.path}</Link> 
-          : null;
-        return (
-          <li key={chapter.path}>
-            <p>{chapter.name}</p>
-            <p>{data ? data.path : "lol"}</p>
-            {link}
-          </li>
-        );
-      });
+  return (
+    <section className="pl2 pr2">
+      <h1>{chapter.name}</h1>
+      <Markdown source={atob(chapter.content)} />
+    </section>
+  );
 
-      return (
-        <div className="App helvetica">
-          <header className="App-header">
-            <img src={logo} className="App-logo" alt="logo" />
-          </header>
-          <ul>
-            {
-              $chapters
-            }
-          </ul>
-        </div>
-      );
 
 };
+
 class AppView extends Component {
     componentWillMount () {
 
     }
     render() {
 
-      const has = chapter => !!this.props.chapters[chapter.path];
-
-      console.log("lol");
       return (
-        <section>
+        <section className="helvetica flex">
           <Route
-            path="/:chapter*"
+            path="/"
+            component={Toc}
+          />
+          <Route
+            path="/chapters/:name"
+
           >
             {({ match, location }) => {
-              if ( !match ) return null;
-              const c = match.params.chapter.split("/").pop();
-              if ( has(c) ) {
-                return (
-                  <section>lol</section>
-                );
+
+              if ( match ) {
+                const name = match.params.name
+                if ( this.props.chapters[name] ) {
+
+                  return <ChapterView
+                    chapter={this.props.chapters[match.params.name]}
+                  />;
+
+                } else {
+                  return (
+                    <section>
+                      not found
+                    </section>
+                  );
+                }
               } else {
-                return <Redirect to="/404"/>;
+                return (
+                  <section>
+                    Select a chapter
+                  </section>
+                );
               }
+
             }}
           </Route>
-          <TOC 
-            chapters={this.props.chapters}
-            toc={this.props.toc}
-          />
         </section>
       );
 
