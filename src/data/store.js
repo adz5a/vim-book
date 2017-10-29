@@ -5,23 +5,35 @@ export * from "./actions";
 
 
 
-const indexBy = key => ( state = {}, data ) =>  {
+const updateBy = key => ( state = {}, data ) =>  {
 
   const index = data[key];
-  return data.reduce(( state, data ) => {
-    state[index] = data;
-    return state;
-  }, { ...state });
+  return {
+    ...state,
+    [index]: data
+  };
+
 
 };
 
+const indexBy = key => ( state = {}, data ) =>  {
+
+  return data.reduce(( state, item ) => {
+    const index = item[key];
+    state[index] = item;
+    return state;
+  }, { ...state });
+
+
+};
 
 const toc = makeReducer({
     [ACTIONS.tocLoaded]: (toc, chapters) => chapters
 },[]);
 
 const chapters = makeReducer({
-  [ACTIONS.chapterLoaded]: indexBy("name"),
+  [ACTIONS.chapterFetched]: updateBy("name"),
+  [ACTIONS.chapterLoaded]: indexBy("name")
 }, {});
 
 const book = combineReducers({

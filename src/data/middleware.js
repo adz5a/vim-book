@@ -13,8 +13,7 @@ const db = new PouchDB("book");
 export function fetchChapter$ ( toc ) {
 
   /*
-   * fires a request every second
-   * returns a stream of actions
+   * fires a request every second * returns a stream of actions
    */
   return xs.periodic(1000)
     .take(toc.length)
@@ -26,7 +25,7 @@ export function fetchChapter$ ( toc ) {
       })
         .then(chapter => {
           return {
-            type: ACTIONS.chapterLoaded,
+            type: ACTIONS.chapterFetched,
             data: chapter
           }
         }, error => {
@@ -48,15 +47,17 @@ async function loadChaptersFromCache$ ( db, toc ) {
   const response = await db.allDocs({
     keys: toc.map(chapter => {
       return chapter.path
-    })
+    }),
+    include_docs: true
   });
 
-  console.log(response.rows);
   const availables = response.rows
     .filter(row => {
       return !row.error;
     })
-    .map(row => row.doc);
+    .map(row => {
+      return row.doc.chapter;
+    });
   const unavailables = response.rows
     .filter(row => {
       return row.error;
@@ -132,6 +133,24 @@ export async function loadToc ( db ) {
   }
 
 }
+export function saveChapter$ ( db, chapter ) {
+
+  return xs.fromPromise(db.put({
+    _id: chapter.path,
+    chapter
+  })
+    .then(() => ({
+      type: ACTIONS.chapterSaved,
+      data: chapter
+    }), error => ({
+      type: ACTIONS.chapterSaveError,
+      data: {
+        chapter,
+        error
+      }
+    })));
+
+}
 
 export const middleware = createMiddleware( raw$ => {
 
@@ -153,10 +172,16 @@ export const middleware = createMiddleware( raw$ => {
     .map(action => fetchChapter$(action.data))
     .flatten();
 
+  const chapterSaved$ = actions$
+    .filter(ofType(ACTIONS.chapterFetched))
+    .map(action => saveChapter$(db, action.data))
+    .flatten();
+
   console.log(chapterLoaded$);
   return xs.merge(
     loadToc$,
     chapterLoaded$,
-    chapterFetched$
+    chapterFetched$,
+    chapterSaved$
   );
 });
