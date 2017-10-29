@@ -5,10 +5,11 @@ import flattenConcurrently from "xstream/extra/flattenConcurrently";
 import delay from "xstream/extra/delay";
 import PouchDB from "pouchdb-browser";
 import { getContents } from "./api";
-import { saveToc, loadToc, loadChapters } from "./middleware";
+import { saveToc, loadToc, loadChapters$ } from "./middleware";
 
 
 describe("pouchdb", () => {
+
   describe("get", () => {
 
     test("404", async function () {
@@ -46,6 +47,35 @@ describe("pouchdb", () => {
       } catch ( e ) {
         expect(e.status).toBe(404);
       }
+      return await db.destroy();
+    });
+
+    test("bulkGet", async function () {
+      expect.hasAssertions();
+      const db = new PouchDB("db-test");
+      
+      const data = "abc".split("")
+        .map(( d, i ) => {
+          return {
+            _id: String(i),
+            data: d
+          };
+        });
+
+      await db.bulkDocs(data);
+
+      const response = await db.allDocs({
+        keys: data.map(d => {
+          // look for unknown doc
+          if ( d._id == "2" ) d._id = "25";
+
+          return d._id;
+        }),
+        include_docs: true
+      });
+
+      console.log(response.rows);
+
       return await db.destroy();
     });
 
@@ -222,7 +252,7 @@ describe("pouchdb", () => {
 });
 
 
-describe("tocs", () => {
+describe.skip("tocs", () => {
 
   const author= "sjl";
   const repo= "learnvimscriptthehardway";
@@ -281,8 +311,8 @@ describe("tocs", () => {
       repo,
       path: "chapters"
     });
-    console.log("response");
-    const res$ = loadChapters(toc.slice(0, 3));
+
+    const res$ = loadChapters$(toc.slice(0, 3));
     const final = await toArray(res$);
 
     const types = final.map( a => a.type )

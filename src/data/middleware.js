@@ -1,6 +1,6 @@
-import { createMiddleware } from "xstream-redux-observable";
+import { createMiddleware, ofType } from "xstream-redux-observable";
 import { getContents } from "./api";
-import { ACTIONS, withType, asType, makeReducer } from "./actions";
+import { ACTIONS, makeReducer } from "./actions";
 import xs from "xstream";
 import delay from "xstream/extra/delay";
 import PouchDB from "pouchdb-browser";
@@ -10,7 +10,7 @@ const author= "sjl";
 const repo= "learnvimscriptthehardway";
 const db = new PouchDB("book");
 
-export function loadChapters ( toc ) {
+export function fetchChapter$ ( toc ) {
 
   /*
    * fires a request every second
@@ -32,12 +32,47 @@ export function loadChapters ( toc ) {
         }, error => {
           return {
             type: ACTIONS.chapterUnavailable,
-            data: error
+            data: {
+              chapter: toc[index],
+              error
+            }
           }; 
         })
     })
     .map(xs.fromPromise)
     .compose(flattenConcurrently);
+}
+
+async function loadChaptersFromCache$ ( db, toc ) {
+
+  const response = await db.allDocs({
+    keys: toc.map(chapter => {
+      return chapter.path
+    })
+  });
+
+  console.log(response.rows);
+  const availables = response.rows
+    .filter(row => {
+      return !row.error;
+    })
+    .map(row => row.doc);
+  const unavailables = response.rows
+    .filter(row => {
+      return row.error;
+    })
+    .map(row => ({
+      path: row.key
+    }));
+
+  return xs.of({
+    type: ACTIONS.chapterLoaded,
+    data: availables
+  }, {
+    type: ACTIONS.chaptersNotCached,
+    data: unavailables
+  });
+
 }
 export async function saveToc ( db, toc ) {
 
@@ -100,4 +135,28 @@ export async function loadToc ( db ) {
 
 export const middleware = createMiddleware( raw$ => {
 
+  const actions$ = raw$.debug("actions");
+  const loadToc$ =  actions$
+    .filter(ofType(ACTIONS.start))
+    .map(() => xs.fromPromise(loadToc(db)))
+    .flatten()
+    .flatten();
+
+  const chapterLoaded$ = actions$
+    .filter(ofType(ACTIONS.tocLoaded))
+    .map(action => xs.fromPromise(loadChaptersFromCache$(db, action.data)))
+    .flatten()
+    .flatten();
+
+  const chapterFetched$ = actions$
+    .filter(ofType(ACTIONS.chaptersNotCached))
+    .map(action => fetchChapter$(action.data))
+    .flatten();
+
+  console.log(chapterLoaded$);
+  return xs.merge(
+    loadToc$,
+    chapterLoaded$,
+    chapterFetched$
+  );
 });

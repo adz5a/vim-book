@@ -7,9 +7,9 @@ export * from "./actions";
 
 const indexBy = key => ( state = {}, data ) =>  {
 
-  const index = item[key];
-  return data.reduce(( state, item ) => {
-    state[index] = item;
+  const index = data[key];
+  return data.reduce(( state, data ) => {
+    state[index] = data;
     return state;
   }, { ...state });
 

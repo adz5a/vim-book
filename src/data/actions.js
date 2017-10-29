@@ -4,7 +4,9 @@ export const ACTIONS = {
   errorTocSave: "error-toc-save",
   tocUnavailable: "toc-unavailable",
   chapterLoaded: "chapter-loaded",
-  chapterUnavailable: "chapter-unavailable"
+  chaptersNotCached: "chapter-not-cached",
+  chapterUnavailable: "chapter-unavailable",
+  start: "book-start"
 };
 
 
